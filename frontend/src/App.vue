@@ -74,12 +74,13 @@
     <!-- 右侧饼图及切换 -->
     <el-col :span="12" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
       <div style="width: 350px;">
-        <el-select v-model="recordCount" style="width: 120px; margin-bottom: 20px;" @change="fetchPieData">
+        <el-select v-model="recordCount" style="width: 120px; margin-bottom: 20px;" @change="fetchAllCharts">
           <el-option label="最近20场" :value="20" />
           <el-option label="最近50场" :value="50" />
           <el-option label="最近100场" :value="100" />
         </el-select>
         <v-chart :option="pieOption" autoresize style="height: 350px;" v-if="pieOption" />
+        <v-chart :option="lineOption" autoresize style="height: 250px; margin-top: 30px;" v-if="lineOption" />
       </div>
     </el-col>
   </el-row>
@@ -91,19 +92,21 @@ import axios from 'axios'
 import VChart from "vue-echarts"
 import 'element-plus/dist/index.css'
 
+// 必须引入对应ECharts组件
 import { CanvasRenderer } from 'echarts/renderers'
-import { PieChart } from 'echarts/charts'
-import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components'
+import { PieChart, LineChart } from 'echarts/charts'
+import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from 'echarts/components'
 import { use } from 'echarts/core'
 
 use([
   CanvasRenderer,
   PieChart,
+  LineChart,
   TitleComponent,
   TooltipComponent,
-  LegendComponent
+  LegendComponent,
+  GridComponent,
 ])
-
 
 // 职业映射
 const classMap = {
@@ -128,12 +131,13 @@ const form = ref({
 const msg = ref('')
 const recordCount = ref(20)
 const pieOption = ref(null)
+const lineOption = ref(null)
 
-// 获取饼图数据
+// 饼图数据
 const fetchPieData = async () => {
   try {
     const res = await axios.get(`http://localhost:5000/records?limit=${recordCount.value}`)
-    // 统计职业分布
+    // 统计敌方职业分布
     const counter = {}
     for (const rec of res.data) {
       const c = rec.enemy_class
@@ -161,10 +165,56 @@ const fetchPieData = async () => {
   }
 }
 
-// 首次加载
-onMounted(fetchPieData)
+// 折线图数据
+const fetchLineData = async () => {
+  try {
+    const res = await axios.get(`http://localhost:5000/records?limit=${recordCount.value}`)
+    const records = res.data
+    records.reverse() // 从最早到最新
+    let winCount = 0
+    let rateData = []
+    let xData = []
+    records.forEach((rec, idx) => {
+      if (rec.is_win) winCount++
+      rateData.push(Number(((winCount / (idx + 1)) * 100).toFixed(2)))
+      xData.push(idx + 1)
+    })
+    lineOption.value = {
+      title: { text: `最近${recordCount.value}场胜率趋势`, left: 'center' },
+      tooltip: { trigger: 'axis' },
+      xAxis: {
+        type: 'category',
+        data: xData,
+        name: '对局数'
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        max: 100,
+        axisLabel: { formatter: '{value}%' }
+      },
+      series: [
+        {
+          name: '累计胜率',
+          type: 'line',
+          data: rateData,
+          smooth: true,
+          symbol: 'circle'
+        }
+      ]
+    }
+  } catch (e) {
+    lineOption.value = null
+  }
+}
 
-// 提交表单后刷新饼图
+const fetchAllCharts = async () => {
+  await fetchPieData()
+  await fetchLineData()
+}
+
+onMounted(fetchAllCharts)
+
 const submitForm = async () => {
   try {
     const response = await axios.post('http://localhost:5000/add_record', form.value)
@@ -177,7 +227,7 @@ const submitForm = async () => {
       is_first: '',
       is_win: ''
     }
-    fetchPieData()
+    fetchAllCharts()
   } catch (err) {
     msg.value = err.response?.data?.error || '提交失败'
   }
