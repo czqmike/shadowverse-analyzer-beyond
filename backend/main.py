@@ -33,7 +33,7 @@ def add_record():
         'my_deck': data['my_deck'],
         'enemy_class': data['enemy_class'],
         'enemy_deck': data['enemy_deck'],
-        'first_or_second': data['first_or_second'],
+        'is_first': data['is_first'],
         'is_win': data['is_win']
     }
     result = collection.insert_one(record)

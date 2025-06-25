@@ -16,11 +16,11 @@
         </el-form-item>
         <el-form-item label="己方卡组">
           <el-select v-model="form.my_deck" placeholder="如 Ramp">
-            <el-option label="快攻" value=1></el-option>
-            <el-option label="中速" value=2></el-option>
-            <el-option label="控制" value=3></el-option>
-            <el-option label="OTK" value=4></el-option>
-            <el-option label="其他" value=5></el-option>
+            <el-option label="快攻" value="快攻"></el-option>
+            <el-option label="中速" value="中速"></el-option>
+            <el-option label="控制" value="控制"></el-option>
+            <el-option label="OTK" value="OTK"></el-option>
+            <el-option label="其他" value="其他"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="敌方职业">
@@ -36,15 +36,15 @@
         </el-form-item>
         <el-form-item label="敌方卡组">
           <el-select v-model="form.enemy_deck" placeholder="如 Ramp">
-            <el-option label="快攻" value=1></el-option>
-            <el-option label="中速" value=2></el-option>
-            <el-option label="控制" value=3></el-option>
-            <el-option label="OTK" value=4></el-option>
-            <el-option label="其他" value=5></el-option>
+            <el-option label="快攻" value="快攻"></el-option>
+            <el-option label="中速" value="中速"></el-option>
+            <el-option label="控制" value="控制"></el-option>
+            <el-option label="OTK" value="OTK"></el-option>
+            <el-option label="其他" value="其他"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="先后手">
-          <el-select v-model="form.first_or_second" placeholder="请选择">
+          <el-select v-model="form.is_first" placeholder="请选择">
             <el-option label="先手" value=true></el-option>
             <el-option label="后手" value=false></el-option>
           </el-select>
