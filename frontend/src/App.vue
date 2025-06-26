@@ -5,6 +5,9 @@
       <el-card style="max-width: 400px; width: 100%; margin: auto;">
         <h2 style="text-align:center;">Shadowverse战绩记录</h2>
         <el-form :model="form" label-width="100px">
+         <el-form-item label="用户标识符">
+          <el-input v-model="form.user_identifier" placeholder="必须，用户唯一标识"></el-input>
+         </el-form-item>
           <el-form-item label="己方职业">
             <el-select v-model="form.my_class" placeholder="请选择">
               <el-option label="妖" :value="1"></el-option>
@@ -97,6 +100,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { PieChart, LineChart } from 'echarts/charts'
 import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from 'echarts/components'
 import { use } from 'echarts/core'
+import { time } from 'echarts'
 
 use([
   CanvasRenderer,
@@ -125,7 +129,9 @@ const form = ref({
   enemy_class: '',
   enemy_deck: '',
   is_first: '',
-  is_win: ''
+  is_win: '',
+  time_stamp: Math.floor(new Date().getTime() / 1000),
+  user_identifier: '' 
 })
 
 const msg = ref('')
@@ -225,7 +231,9 @@ const submitForm = async () => {
       enemy_class: '',
       enemy_deck: '',
       is_first: '',
-      is_win: ''
+      is_win: '',
+      time_stamp: 0,
+      user_identifier: ''
     }
     fetchAllCharts()
   } catch (err) {
