@@ -115,7 +115,7 @@ use([
   GridComponent,
 ])
 
-backend_ip = "localhost"
+const backend_ip = "localhost"
 
 // 职业映射
 const classMap = {
