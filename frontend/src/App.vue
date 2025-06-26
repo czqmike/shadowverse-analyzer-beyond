@@ -6,7 +6,10 @@
         <h2 style="text-align:center;">Shadowverse战绩记录</h2>
         <el-form :model="form" label-width="100px">
          <el-form-item label="用户标识符">
-          <el-input v-model="form.user_identifier" placeholder="必须，用户唯一标识"></el-input>
+            <template #label>
+              <span style="color: #409EFF;">用户标识符</span>
+            </template>
+            <el-input v-model="form.user_identifier" placeholder="必须，用户唯一标识"></el-input>
          </el-form-item>
           <el-form-item label="己方职业">
             <el-select v-model="form.my_class" placeholder="请选择">
@@ -90,7 +93,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
 import VChart from "vue-echarts"
 import 'element-plus/dist/index.css'
@@ -141,8 +144,15 @@ const lineOption = ref(null)
 
 // 饼图数据
 const fetchPieData = async () => {
+  if (!form.value.user_identifier) {
+    pieOption.value = null
+    return
+  }
   try {
-    const res = await axios.get(`http://localhost:5000/records?limit=${recordCount.value}`)
+    const res = await axios.post('http://localhost:5000/get_records', {
+      user_identifier: form.value.user_identifier,
+      limit: recordCount.value
+    })
     // 统计敌方职业分布
     const counter = {}
     for (const rec of res.data) {
@@ -173,8 +183,15 @@ const fetchPieData = async () => {
 
 // 折线图数据
 const fetchLineData = async () => {
+  if (!form.value.user_identifier) {
+    lineOption.value = null
+    return
+  }
   try {
-    const res = await axios.get(`http://localhost:5000/records?limit=${recordCount.value}`)
+    const res = await axios.post('http://localhost:5000/get_records', {
+      user_identifier: form.value.user_identifier,
+      limit: recordCount.value
+    })
     const records = res.data
     records.reverse() // 从最早到最新
     let winCount = 0
@@ -221,19 +238,23 @@ const fetchAllCharts = async () => {
 
 onMounted(fetchAllCharts)
 
+watch(() => form.value.user_identifier, (newVal, oldVal) => {
+  fetchAllCharts()
+})
+
 const submitForm = async () => {
   try {
     const response = await axios.post('http://localhost:5000/add_record', form.value)
     msg.value = '提交成功！ID: ' + response.data.id
     form.value = {
-      my_class: '',
-      my_deck: '',
+      my_class: form.value.my_class,
+      my_deck: form.value.my_deck,
       enemy_class: '',
       enemy_deck: '',
       is_first: '',
       is_win: '',
       time_stamp: 0,
-      user_identifier: ''
+      user_identifier: form.value.user_identifier
     }
     fetchAllCharts()
   } catch (err) {
