@@ -115,6 +115,8 @@ use([
   GridComponent,
 ])
 
+backend_ip = "localhost"
+
 // 职业映射
 const classMap = {
   1: "妖",
@@ -149,7 +151,7 @@ const fetchPieData = async () => {
     return
   }
   try {
-    const res = await axios.post('http://localhost:5000/get_records', {
+    const res = await axios.post(`http://${backend_ip}:5000/get_records`, {
       user_identifier: form.value.user_identifier,
       limit: recordCount.value
     })
@@ -188,7 +190,7 @@ const fetchLineData = async () => {
     return
   }
   try {
-    const res = await axios.post('http://localhost:5000/get_records', {
+    const res = await axios.post(`http://${backend_ip}:5000/get_records`, {
       user_identifier: form.value.user_identifier,
       limit: recordCount.value
     })
@@ -244,7 +246,7 @@ watch(() => form.value.user_identifier, (newVal, oldVal) => {
 
 const submitForm = async () => {
   try {
-    const response = await axios.post('http://localhost:5000/add_record', form.value)
+    const response = await axios.post(`http://${backend_ip}:5000/add_record`, form.value)
     msg.value = '提交成功！ID: ' + response.data.id
     form.value = {
       my_class: form.value.my_class,
