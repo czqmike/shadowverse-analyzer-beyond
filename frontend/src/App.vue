@@ -115,7 +115,23 @@ use([
   GridComponent,
 ])
 
-const backend_ip = "localhost"
+const backend_ip = ref('localhost')
+
+// 动态读取 backend_ip 文件
+async function loadBackendIp() {
+  try {
+    const resp = await fetch('/backend_ip')
+    if (!resp.ok) throw new Error('no file')
+    const text = (await resp.text()).trim()
+    if (text) backend_ip.value = text
+  } catch (e) {
+    backend_ip.value = 'localhost'
+  }
+}
+
+onMounted(() => {
+  loadBackendIp().then(fetchAllCharts)
+})
 
 // 职业映射
 const classMap = {
@@ -151,7 +167,7 @@ const fetchPieData = async () => {
     return
   }
   try {
-    const res = await axios.post(`http://${backend_ip}:5000/get_records`, {
+    const res = await axios.post(`http://${backend_ip.value}:5000/get_records`, {
       user_identifier: form.value.user_identifier,
       limit: recordCount.value
     })
@@ -190,12 +206,12 @@ const fetchLineData = async () => {
     return
   }
   try {
-    const res = await axios.post(`http://${backend_ip}:5000/get_records`, {
+    const res = await axios.post(`http://${backend_ip.value}:5000/get_records`, {
       user_identifier: form.value.user_identifier,
       limit: recordCount.value
     })
     const records = res.data
-    records.reverse() // 从最早到最新
+    // records.reverse() // 从最早到最新
     let winCount = 0
     let rateData = []
     let xData = []
@@ -246,7 +262,7 @@ watch(() => form.value.user_identifier, (newVal, oldVal) => {
 
 const submitForm = async () => {
   try {
-    const response = await axios.post(`http://${backend_ip}:5000/add_record`, form.value)
+    const response = await axios.post(`http://${backend_ip.value}:5000/add_record`, form.value)
     msg.value = '提交成功！ID: ' + response.data.id
     form.value = {
       my_class: form.value.my_class,

@@ -64,10 +64,25 @@ def get_records_by_userid():
     data = request.json
     if not is_user_identifier_valid(data):
         return jsonify({'error': 'user_identifier illegal!'}), 400
+
+    limit = data.get('limit', 20)
+
+    # 先统计该用户的总记录数n
+    n = collection.count_documents({'user_identifier': data['user_identifier']})
+
+    # 计算需要skip的数量
+    skip = max(0, n - limit)
+
+    # 获取最后[n-limit, n]条记录
     records = []
-    for r in collection.find({'user_identifier': data['user_identifier']}):
+    cursor = collection.find({'user_identifier': data['user_identifier']}) \
+                       .sort([('_id', 1)]) \
+                       .skip(skip) \
+                       .limit(limit)
+    for r in cursor:
         r['_id'] = str(r['_id'])
         records.append(r)
+
     return jsonify(records)
 
 def get_recent_matches(n=20):

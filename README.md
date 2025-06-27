@@ -1,13 +1,18 @@
 # shadowverse-analyzer-beyond
 **S**haderverse analy**Z**er **B**eyond (SZB) is a Shaderverse WB data analyze tool, which helps you to analyze the data of your battle result.
 
+Example:
+![example_img](./example/szb.png)
+[TRY NOW: szb.info](http://szb.info)
+
 ## Get Start
-`npm install element-plus axios`
+`cd frontend && npm install element-plus axios`
 
 - 后端启动：`cd backend && python main.py`
+- 修改api host: `mv frontend/public/backend_ip.example frontend/public/backend_ip` and **modify it to your own**
 - 前端启动：`cd frontend && npm run dev`
 
-## TODOS
+## TODOs
 1. ~~数据记录~~
   - ~~记录每场对局的~~
     - ~~己方职业~~
@@ -28,3 +33,8 @@
 
 ## Betters
 1. ~~己方职业、卡组提交后不清空前端~~
+2. ~~添加前端动态读取backend_ip~~
+
+## Bugs
+1. ~~最近n场没有生效，现在显示的是全部的~~
+2. ~~胜率趋势计算不太对~~
